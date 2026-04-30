@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import "./styles.css";
 
-const resumeHref = "/public/SRINJOY_ROY_CV.pdf";
+const resumeHref = "https://drive.google.com/file/d/1WE4SjDdrz-_4IPGLYdRwXUVxuWR_a-Xv/view?usp=drive_link";
 
 const links = {
   email: "srinjoy.roy.work365@gmail.com",
