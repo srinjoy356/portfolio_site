@@ -36,25 +36,45 @@ import "./styles.css";
 //                                                       ↑ copy this part
 const DRIVE_FILE_ID = import.meta.env.VITE_RESUME_DRIVE_ID || "1WE4SjDdrz-_4IPGLYdRwXUVxuWR_a-Xv";
 
-// Fetches via a CORS proxy so the browser receives the raw PDF bytes,
-// then triggers a real download without any "open app" popup or .txt nonsense.
 async function downloadResume() {
   const directUrl = `https://drive.google.com/uc?export=download&id=${DRIVE_FILE_ID}`;
   const proxyUrl  = `https://corsproxy.io/?url=${encodeURIComponent(directUrl)}`;
+
+  console.log("[Resume] DRIVE_FILE_ID  :", DRIVE_FILE_ID);
+  console.log("[Resume] directUrl      :", directUrl);
+  console.log("[Resume] proxyUrl       :", proxyUrl);
+
   try {
-    const res  = await fetch(proxyUrl);
-    if (!res.ok) throw new Error("fetch failed");
+    console.log("[Resume] Fetching via proxy...");
+    const res = await fetch(proxyUrl);
+    console.log("[Resume] Response status :", res.status, res.statusText);
+    console.log("[Resume] Content-Type    :", res.headers.get("content-type"));
+
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+
     const blob = await res.blob();
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
+    console.log("[Resume] Blob size       :", blob.size, "bytes");
+    console.log("[Resume] Blob type       :", blob.type);
+
+    if (blob.size < 1000) {
+      // Almost certainly an error page, not a PDF
+      const text = await blob.text();
+      console.error("[Resume] Blob too small — likely an error page. Body:", text.slice(0, 500));
+      throw new Error("Response too small to be a PDF");
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement("a");
     a.href     = url;
     a.download = "Srinjoy_Roy_Resume.pdf";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  } catch {
-    // fallback: open Drive preview in new tab
+    console.log("[Resume] Download triggered successfully.");
+  } catch (err) {
+    console.error("[Resume] FAILED:", err.message);
+    console.warn("[Resume] Falling back to Drive preview tab.");
     window.open(`https://drive.google.com/file/d/${DRIVE_FILE_ID}/view`, "_blank");
   }
 }
