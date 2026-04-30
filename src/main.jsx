@@ -31,7 +31,33 @@ import {
 } from "lucide-react";
 import "./styles.css";
 
-const resumeHref = "https://drive.google.com/file/d/1WE4SjDdrz-_4IPGLYdRwXUVxuWR_a-Xv/view?usp=drive_link";
+// Paste your Google Drive file ID here (the long string from the share URL).
+// Drive share URL:  https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+//                                                       ↑ copy this part
+const DRIVE_FILE_ID = import.meta.env.VITE_RESUME_DRIVE_ID || "1WE4SjDdrz-_4IPGLYdRwXUVxuWR_a-Xv";
+
+// Fetches via a CORS proxy so the browser receives the raw PDF bytes,
+// then triggers a real download without any "open app" popup or .txt nonsense.
+async function downloadResume() {
+  const directUrl = `https://drive.google.com/uc?export=download&id=${DRIVE_FILE_ID}`;
+  const proxyUrl  = `https://corsproxy.io/?url=${encodeURIComponent(directUrl)}`;
+  try {
+    const res  = await fetch(proxyUrl);
+    if (!res.ok) throw new Error("fetch failed");
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = "Srinjoy_Roy_Resume.pdf";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch {
+    // fallback: open Drive preview in new tab
+    window.open(`https://drive.google.com/file/d/${DRIVE_FILE_ID}/view`, "_blank");
+  }
+}
 
 const links = {
   email: "srinjoy.roy.work365@gmail.com",
@@ -330,10 +356,10 @@ function Header({ menuOpen, setMenuOpen }) {
           </a>
         ))}
       </nav>
-      <a className="nav-cta" href={resumeHref} download>
+      <button className="nav-cta" type="button" onClick={downloadResume}>
         <Download size={16} />
         Resume
-      </a>
+      </button>
       <button
         className="menu-button"
         type="button"
@@ -368,10 +394,10 @@ function Hero({ onOpenEmail }) {
             <Mail size={18} />
             Contact me
           </button>
-          <a className="button secondary" href={resumeHref} download>
+          <button className="button secondary" type="button" onClick={downloadResume}>
             <Download size={18} />
             Download resume
-          </a>
+          </button>
           <a className="icon-link" href={links.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
             <Linkedin size={20} />
           </a>
@@ -720,7 +746,7 @@ function Contact({ onOpenEmail, onOpenPhone }) {
               </div>
             </div>
             <div className="instagram-post-item">
-              <p className="instagram-post-caption">Felicitated by Pralhad Joshi at Delhi</p>
+              <p className="instagram-post-caption">Felicitated by Pralhad Joshi at Delhi — SIH 2025 ceremony</p>
               <div className="instagram-embed-wrapper">
                 <iframe
                   src="https://www.instagram.com/p/DTNdoCgkgRn/embed/"
@@ -759,10 +785,10 @@ function EmailModal({ open, onClose }) {
     if (!form.from || !form.subject || !form.body) return;
     setStatus("sending");
     try {
-      // EmailJS — replace these three values with your own from emailjs.com
-    const SERVICE_ID  = "service_mzaq8sd";
-    const TEMPLATE_ID = "template_9rzi8tt";
-    const PUBLIC_KEY  = "T8wplgRI_NvBpssK2";
+      // EmailJS keys are read from .env (VITE_ prefix = safe to expose in frontend)
+      const SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
       await window.emailjs.send(SERVICE_ID, TEMPLATE_ID, {
         from_email: form.from,
