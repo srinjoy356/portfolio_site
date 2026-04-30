@@ -37,6 +37,7 @@ import "./styles.css";
 const DRIVE_FILE_ID = import.meta.env.VITE_RESUME_DRIVE_ID || "1WE4SjDdrz-_4IPGLYdRwXUVxuWR_a-Xv";
 
 async function downloadResume() {
+    console.log("Entered the download function");
   const directUrl = `https://drive.google.com/uc?export=download&id=${DRIVE_FILE_ID}`;
   const proxyUrl  = `https://corsproxy.io/?url=${encodeURIComponent(directUrl)}`;
 
