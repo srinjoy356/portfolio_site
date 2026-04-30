@@ -148,24 +148,28 @@ const projects = [
 const demos = [
   {
     title: "Introducing MetaMark",
+    slug: "demo-metamark",
     type: "AI legal metrology compliance",
     url: "https://youtu.be/xZJdHqtpcVk",
     embedUrl: "https://www.youtube.com/embed/xZJdHqtpcVk",
   },
   {
     title: "Welcome to AgriX Nirvana",
+    slug: "demo-agrix-nirvana",
     type: "Blockchain agriculture transparency",
     url: "https://youtu.be/ppEzKKeZSAk",
     embedUrl: "https://www.youtube.com/embed/ppEzKKeZSAk",
   },
   {
     title: "Nirvana SmartChain",
+    slug: "demo-nirvana-smartchain",
     type: "Anti-counterfeiting pharma solution",
     url: "https://youtu.be/SDcBaqv6fJY",
     embedUrl: "https://www.youtube.com/embed/SDcBaqv6fJY",
   },
   {
     title: "OCR medical document intelligence",
+    slug: "demo-medical-ocr",
     type: "LinkedIn technical walkthrough",
     url: "https://www.linkedin.com/posts/srinjoy-roy-22ab76287_python-programming-coding-activity-7214915933214007296-f6eH/",
   },
@@ -229,6 +233,26 @@ function App() {
 
     nodes.forEach((node) => observer.observe(node));
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const openDemoFromHash = () => {
+      const slug = window.location.hash.replace("#", "");
+      const demo = demos.find((item) => item.slug === slug);
+      if (demo) {
+        setActiveDemo(demo);
+        return;
+      }
+
+      const target = document.getElementById(slug);
+      if (target) {
+        window.setTimeout(() => target.scrollIntoView({ block: "start" }), 0);
+      }
+    };
+
+    openDemoFromHash();
+    window.addEventListener("hashchange", openDemoFromHash);
+    return () => window.removeEventListener("hashchange", openDemoFromHash);
   }, []);
 
   useEffect(() => {
