@@ -31,53 +31,15 @@ import {
 } from "lucide-react";
 import "./styles.css";
 
-// Paste your Google Drive file ID here (the long string from the share URL).
-// Drive share URL:  https://drive.google.com/file/d/FILE_ID/view?usp=sharing
-//                                                       ↑ copy this part
-const DRIVE_FILE_ID = import.meta.env.VITE_RESUME_DRIVE_ID || "1WE4SjDdrz-_4IPGLYdRwXUVxuWR_a-Xv";
-
-async function downloadResume() {
-    console.log("Entered the download function");
-  const directUrl = `https://drive.google.com/uc?export=download&id=${DRIVE_FILE_ID}`;
-  const proxyUrl  = `https://corsproxy.io/?url=${encodeURIComponent(directUrl)}`;
-
-  console.log("[Resume] DRIVE_FILE_ID  :", DRIVE_FILE_ID);
-  console.log("[Resume] directUrl      :", directUrl);
-  console.log("[Resume] proxyUrl       :", proxyUrl);
-
-  try {
-    console.log("[Resume] Fetching via proxy...");
-    const res = await fetch(proxyUrl);
-    console.log("[Resume] Response status :", res.status, res.statusText);
-    console.log("[Resume] Content-Type    :", res.headers.get("content-type"));
-
-    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
-
-    const blob = await res.blob();
-    console.log("[Resume] Blob size       :", blob.size, "bytes");
-    console.log("[Resume] Blob type       :", blob.type);
-
-    if (blob.size < 1000) {
-      // Almost certainly an error page, not a PDF
-      const text = await blob.text();
-      console.error("[Resume] Blob too small — likely an error page. Body:", text.slice(0, 500));
-      throw new Error("Response too small to be a PDF");
-    }
-
-    const url = URL.createObjectURL(blob);
-    const a   = document.createElement("a");
-    a.href     = url;
-    a.download = "Srinjoy_Roy_Resume.pdf";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    console.log("[Resume] Download triggered successfully.");
-  } catch (err) {
-    console.error("[Resume] FAILED:", err.message);
-    console.warn("[Resume] Falling back to Drive preview tab.");
-    window.open(`https://drive.google.com/file/d/${DRIVE_FILE_ID}/view`, "_blank");
-  }
+function downloadResume() {
+  // PDF lives in /public/resume.pdf — Vite serves public/ as static root,
+  // so this path works identically in dev and on Vercel/Netlify.
+  const a = document.createElement("a");
+  a.href = "/SRINJOY_ROY_CV.pdf";
+  a.download = "Srinjoy_Roy_Resume.pdf";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 const links = {
