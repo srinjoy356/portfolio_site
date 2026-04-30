@@ -7,11 +7,13 @@ import {
   BriefcaseBusiness,
   CheckCircle2,
   Code2,
+  Copy,
   Database,
   Download,
   ExternalLink,
   Github,
   GraduationCap,
+  Instagram,
   Layers3,
   Linkedin,
   Mail,
@@ -21,6 +23,7 @@ import {
   Network,
   Phone,
   PlayCircle,
+  Send,
   ShieldCheck,
   Sparkles,
   Trophy,
@@ -28,13 +31,14 @@ import {
 } from "lucide-react";
 import "./styles.css";
 
-const resumeHref = "/srinjoy_roy_resume_final.pdf";
+const resumeHref = "/public/SRINJOY_ROY_CV.pdf";
 
 const links = {
-  email: "mailto:srinjoy.roy.work365@gmail.com",
-  phone: "tel:+916297431381",
+  email: "srinjoy.roy.work365@gmail.com",
+  phone: "+91 62974 31381",
   linkedin: "https://www.linkedin.com/in/srinjoy-roy-22ab76287",
   github: "https://github.com/srinjoy356",
+  instagram: "https://www.instagram.com/srinjoy356/",
   credentials:
     "https://drive.google.com/drive/u/0/folders/1KTIBZgnpQIGLYo5qjtemiju2AQ6IDZuJ",
 };
@@ -216,6 +220,18 @@ const education = [
 function App() {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [activeDemo, setActiveDemo] = React.useState(null);
+  const [emailModalOpen, setEmailModalOpen] = React.useState(false);
+  const [phoneModalOpen, setPhoneModalOpen] = React.useState(false);
+
+  useEffect(() => {
+    // Load EmailJS SDK once
+    if (!window.emailjs) {
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+  }, []);
 
   useEffect(() => {
     const nodes = document.querySelectorAll("[data-reveal]");
@@ -256,13 +272,15 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!activeDemo) {
+    if (!activeDemo && !emailModalOpen && !phoneModalOpen) {
       return undefined;
     }
 
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         setActiveDemo(null);
+        setEmailModalOpen(false);
+        setPhoneModalOpen(false);
       }
     };
 
@@ -273,22 +291,27 @@ function App() {
       document.body.classList.remove("modal-open");
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeDemo]);
+  }, [activeDemo, emailModalOpen, phoneModalOpen]);
 
   return (
     <div className="site-shell">
       <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       <main>
-        <Hero />
+        <Hero onOpenEmail={() => setEmailModalOpen(true)} />
         <Achievements />
         <Skills />
         <Projects onOpenDemo={setActiveDemo} />
         <Communication onOpenDemo={setActiveDemo} />
         <Experience />
         <Education />
-        <Contact />
+        <Contact
+          onOpenEmail={() => setEmailModalOpen(true)}
+          onOpenPhone={() => setPhoneModalOpen(true)}
+        />
       </main>
       <VideoModal demo={activeDemo} onClose={() => setActiveDemo(null)} />
+      <EmailModal open={emailModalOpen} onClose={() => setEmailModalOpen(false)} />
+      <PhoneModal open={phoneModalOpen} onClose={() => setPhoneModalOpen(false)} />
     </div>
   );
 }
@@ -324,7 +347,7 @@ function Header({ menuOpen, setMenuOpen }) {
   );
 }
 
-function Hero() {
+function Hero({ onOpenEmail }) {
   return (
     <section className="hero section" id="top">
       <div className="hero-grid" aria-hidden="true" />
@@ -341,10 +364,10 @@ function Hero() {
           and MLOps workflows for reliable real-world deployment.
         </p>
         <div className="hero-actions">
-          <a className="button primary" href={links.email}>
+          <button className="button primary" type="button" onClick={onOpenEmail}>
             <Mail size={18} />
             Contact me
-          </a>
+          </button>
           <a className="button secondary" href={resumeHref} download>
             <Download size={18} />
             Download resume
@@ -354,6 +377,9 @@ function Hero() {
           </a>
           <a className="icon-link" href={links.github} target="_blank" rel="noreferrer" aria-label="GitHub">
             <Github size={20} />
+          </a>
+          <a className="icon-link" href={links.instagram} target="_blank" rel="noreferrer" aria-label="Instagram">
+            <Instagram size={20} />
           </a>
         </div>
       </div>
@@ -624,40 +650,330 @@ function Education() {
   );
 }
 
-function Contact() {
+function Contact({ onOpenEmail, onOpenPhone }) {
   return (
     <footer className="section contact-section" id="contact" data-reveal>
-      <div>
-        <p className="eyebrow">
-          <MapPin size={16} />
-          Kolkata, India
-        </p>
-        <h2>Ready for data science, ML engineering, and applied GenAI opportunities.</h2>
-        <p>
-          Open to roles where strong model thinking, backend delivery, and clear product communication matter.
-        </p>
+      <div className="contact-top-row">
+        <div>
+          <p className="eyebrow">
+            <MapPin size={16} />
+            Kolkata, India
+          </p>
+          <h2>Ready for data science, ML engineering, and applied GenAI opportunities.</h2>
+          <p>
+            Open to roles where strong model thinking, backend delivery, and clear product communication matter.
+          </p>
+        </div>
+        <div className="contact-actions">
+          <button className="button primary" type="button" onClick={onOpenEmail}>
+            <Mail size={18} />
+            Email Srinjoy
+          </button>
+          <button className="button secondary" type="button" onClick={onOpenPhone}>
+            <Phone size={18} />
+            Call
+          </button>
+          <a className="button secondary" href={links.linkedin} target="_blank" rel="noreferrer">
+            <Linkedin size={18} />
+            LinkedIn
+          </a>
+          <a className="button secondary" href={links.github} target="_blank" rel="noreferrer">
+            <Github size={18} />
+            GitHub
+          </a>
+          <a className="button secondary" href={links.instagram} target="_blank" rel="noreferrer">
+            <Instagram size={18} />
+            Instagram
+          </a>
+        </div>
       </div>
-      <div className="contact-actions">
-        <a className="button primary" href={links.email}>
-          <Mail size={18} />
-          Email Srinjoy
-        </a>
-        <a className="button secondary" href={links.phone}>
-          <Phone size={18} />
-          Call
-        </a>
-        <a className="button secondary" href={links.linkedin} target="_blank" rel="noreferrer">
-          <Linkedin size={18} />
-          LinkedIn
-        </a>
-        <a className="button secondary" href={links.github} target="_blank" rel="noreferrer">
-          <Github size={18} />
-          GitHub
-        </a>
+      <div className="instagram-posts-section">
+          <p className="eyebrow football-eyebrow">
+            <Instagram size={16} />
+            Beyond the code
+          </p>
+          <div className="instagram-posts-grid">
+            <div className="instagram-post-item">
+              <p className="instagram-post-caption">Playing football — one of my biggest hobbies</p>
+              <div className="instagram-embed-wrapper">
+                <iframe
+                  src="https://www.instagram.com/p/DR68tP1ieAE/embed/"
+                  frameBorder="0"
+                  scrolling="no"
+                  allowTransparency="true"
+                  title="Srinjoy playing football"
+                  className="instagram-embed-frame"
+                />
+              </div>
+            </div>
+            <div className="instagram-post-item">
+              <p className="instagram-post-caption">SIH 2025 winning reel 🏆</p>
+              <div className="instagram-embed-wrapper">
+                <iframe
+                  src="https://www.instagram.com/p/DSaBPS1EgGa/embed/"
+                  frameBorder="0"
+                  scrolling="no"
+                  allowTransparency="true"
+                  title="SIH 2025 winning reel"
+                  className="instagram-embed-frame"
+                />
+              </div>
+            </div>
+            <div className="instagram-post-item">
+              <p className="instagram-post-caption">Felicitated by Pralhad Joshi at Delhi</p>
+              <div className="instagram-embed-wrapper">
+                <iframe
+                  src="https://www.instagram.com/p/DTNdoCgkgRn/embed/"
+                  frameBorder="0"
+                  scrolling="no"
+                  allowTransparency="true"
+                  title="Delhi felicitation ceremony SIH 2025"
+                  className="instagram-embed-frame"
+                />
+              </div>
+            </div>
+          </div>
       </div>
     </footer>
   );
 }
+
+function EmailModal({ open, onClose }) {
+  const [tab, setTab] = React.useState("compose"); // "compose" | "view"
+  const [form, setForm] = React.useState({ from: "", subject: "", body: "" });
+  const [status, setStatus] = React.useState("idle"); // "idle" | "sending" | "sent" | "error"
+  const [copied, setCopied] = React.useState(false);
+
+  if (!open) return null;
+
+  const myEmail = links.email;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(myEmail).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const handleSend = async () => {
+    if (!form.from || !form.subject || !form.body) return;
+    setStatus("sending");
+    try {
+      // EmailJS — replace these three values with your own from emailjs.com
+    const SERVICE_ID  = "service_mzaq8sd";
+    const TEMPLATE_ID = "template_9rzi8tt";
+    const PUBLIC_KEY  = "T8wplgRI_NvBpssK2";
+
+      await window.emailjs.send(SERVICE_ID, TEMPLATE_ID, {
+        from_email: form.from,
+        reply_to:   form.from,
+        subject:    form.subject,
+        message:    form.body,
+        to_email:   myEmail,
+      }, PUBLIC_KEY);
+
+      setStatus("sent");
+    } catch (err) {
+      console.error("EmailJS error:", err);
+      setStatus("error");
+    }
+  };
+
+  const canSend = form.from.trim() && form.subject.trim() && form.body.trim();
+
+  return (
+    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
+      <section
+        className="email-modal video-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="email-modal-title"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <div>
+            <p className="eyebrow">
+              <Mail size={16} />
+              Get in touch
+            </p>
+            <h2 id="email-modal-title">Email Srinjoy</h2>
+            <p>Send a message or copy the address — your choice.</p>
+          </div>
+          <button className="modal-close" type="button" onClick={onClose} aria-label="Close email popup">
+            <X size={22} />
+          </button>
+        </div>
+
+        <div className="email-tabs">
+          <button
+            type="button"
+            className={`email-tab ${tab === "compose" ? "active" : ""}`}
+            onClick={() => setTab("compose")}
+          >
+            <Send size={15} />
+            Compose
+          </button>
+          <button
+            type="button"
+            className={`email-tab ${tab === "view" ? "active" : ""}`}
+            onClick={() => setTab("view")}
+          >
+            <Mail size={15} />
+            View email
+          </button>
+        </div>
+
+        <div className="email-body">
+          {tab === "view" ? (
+            <div className="email-address-view">
+              <p className="email-addr-label">My email address</p>
+              <div className="email-addr-row">
+                <span className="email-addr-text">{myEmail}</span>
+                <button type="button" className="copy-btn" onClick={handleCopy}>
+                  <Copy size={16} />
+                  {copied ? "Copied!" : "Copy"}
+                </button>
+              </div>
+              <p className="email-addr-note">
+                You can also open your mail client directly:{" "}
+                <a href={`mailto:${myEmail}`} className="email-direct-link">
+                  Open in mail app
+                </a>
+              </p>
+            </div>
+          ) : status === "sent" ? (
+            <div className="email-sent-state">
+              <div className="sent-icon">✓</div>
+              <h3>Message sent!</h3>
+              <p>Your message was delivered directly to Srinjoy. Expect a reply soon.</p>
+              <button type="button" className="button primary" onClick={() => { setStatus("idle"); setForm({ from: "", subject: "", body: "" }); }}>
+                Compose another
+              </button>
+            </div>
+          ) : status === "error" ? (
+            <div className="email-sent-state">
+              <div className="sent-icon" style={{background:"rgba(255,80,80,0.15)",borderColor:"rgba(255,80,80,0.4)",color:"#ff6b6b"}}>✕</div>
+              <h3>Something went wrong</h3>
+              <p>The message could not be sent. Please check your EmailJS configuration or try again.</p>
+              <button type="button" className="button primary" onClick={() => setStatus("idle")}>
+                Try again
+              </button>
+            </div>
+          ) : (
+            <div className="email-compose">
+              <div className="email-to-row">
+                <span className="email-field-label">To</span>
+                <span className="email-to-value">{myEmail}</span>
+              </div>
+              <div className="email-field">
+                <label className="email-field-label" htmlFor="email-from">Your email</label>
+                <input
+                  id="email-from"
+                  className="email-input"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={form.from}
+                  onChange={(e) => setForm((f) => ({ ...f, from: e.target.value }))}
+                />
+              </div>
+              <div className="email-field">
+                <label className="email-field-label" htmlFor="email-subject">Subject</label>
+                <input
+                  id="email-subject"
+                  className="email-input"
+                  type="text"
+                  placeholder="What's this about?"
+                  value={form.subject}
+                  onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
+                />
+              </div>
+              <div className="email-field">
+                <label className="email-field-label" htmlFor="email-body">Message</label>
+                <textarea
+                  id="email-body"
+                  className="email-textarea"
+                  placeholder="Write your message here..."
+                  rows={6}
+                  value={form.body}
+                  onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))}
+                />
+              </div>
+              <div className="email-actions">
+                <button
+                  type="button"
+                  className={`button primary ${!canSend ? "btn-disabled" : ""}`}
+                  onClick={handleSend}
+                  disabled={!canSend || status === "sending"}
+                >
+                  <Send size={16} />
+                  {status === "sending" ? "Sending…" : "Send message"}
+                </button>
+                <p className="email-disclaimer">
+                  Sent directly from this site — no mail app needed.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function PhoneModal({ open, onClose }) {
+  const [copied, setCopied] = React.useState(false);
+  if (!open) return null;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(links.phone).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
+      <section
+        className="phone-modal video-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="phone-modal-title"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <div>
+            <p className="eyebrow">
+              <Phone size={16} />
+              Phone
+            </p>
+            <h2 id="phone-modal-title">Call Srinjoy</h2>
+            <p>Available for calls — reach out directly.</p>
+          </div>
+          <button className="modal-close" type="button" onClick={onClose} aria-label="Close phone popup">
+            <X size={22} />
+          </button>
+        </div>
+        <div className="phone-body">
+          <div className="phone-number-card">
+            <Phone size={32} className="phone-icon-big" />
+            <div>
+              <p className="phone-label">Contact number</p>
+              <p className="phone-number">{links.phone}</p>
+              <p className="phone-note">India (IST, UTC+5:30)</p>
+            </div>
+          </div>
+          <div className="phone-actions">
+            <button type="button" className="button primary" onClick={handleCopy}>
+              <Copy size={16} />
+              {copied ? "Copied!" : "Copy number"}
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 
 function SectionIntro({ icon, label, title, text }) {
   return (
